@@ -1,0 +1,8 @@
+require(astsa)
+help(astsa)
+help(jj)
+plot(jj, ylab='Earnings', xlab='Years', main="Johnson&Johnson quarterly earnings per share", type='o')
+plot(flu, ylab="Number of Deaths per 10,000 people", xlab='Month', main="Monthly Pneumonia and Influenza Deaths in US")
+plot(globtemp, xlab='Year', ylab='Temparature deviations', type='o', main='Global mean land-ocean deviations from average temparature of 1951-1980')
+plot(star, main='The magnitude of a star taken at midnight for 600 consecutive days', ylab = 'Magnitude', xlab = 'Days')
+plot(globtempl, xlab='Year', ylab='Temparature deviations', type='o', main='Global mean land deviations from average temparature of 1951-1980')
