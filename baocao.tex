@@ -1,0 +1,127 @@
+\documentclass[a4paper, 12pt]{article}
+\usepackage[utf8]{vietnam}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+\renewcommand{\qedsymbol}{$\blacksquare$}
+\usepackage{mathtools}
+\usepackage{enumerate}
+\usepackage{fancyhdr}
+\usepackage{lipsum}
+\usepackage{amsthm}
+\author{Phạm Vũ Tiến}
+\usepackage{float}
+
+\theoremstyle{plain}
+\newtheorem{thm}{Định lý}[section] % reset theorem numbering for each chapter
+\theoremstyle{definition}
+\newtheorem{defn}{Định nghĩa}[section] % definition numbers are dependent on theorem numbers
+\newtheorem{exmp}{Ví dụ}[section] % same for example numbers
+
+\numberwithin{equation}{section}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{graphicx}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\renewcommand{\baselinestretch}{1.5}
+
+\begin{document}	
+	Phạm Vũ Tiến - 20153789\\
+	Mô hình chuỗi thời gian SARIMA (Seasonal ARIMA)\\
+\section{Mô hình SARIMA}
+	$SARIMA(p,d,q,P,D,Q)_s$ có dạng:
+	$$\Phi_P(B^s)\phi_p(B)(1-B^s)^D(1-B)^dX_t = \Theta_Q(B^s)\theta_q(B)Z_t$$
+	Trong đó: 
+\begin{itemize}
+ \item	$p$ là cấp của quá trình tự hồi quy.
+ \item	$d$ là cấp sai phân của các quá trình không theo mùa
+ \item	$q$ là cấp của quá trình trung bình trượt.
+ \item  $P$ là cấp của quá trình tự hồi quy theo mùa.
+ \item  $D$ là cấp sai phân của các quá trình theo mùa
+ \item  $Q$ là cấp của quá trình trung bình trượt theo mùa.
+ \item  $s$ là chu kỳ theo mùa của quá trình.
+ \item  $X_t$ là các giá trị của chuỗi thời gian tại thời điểm t
+ \item  $Z_t$ là ồn trắng, $Z_t \sim N(0, \sigma_z^2), \ cov(Z_t, Z_s) = 0 \ \forall t \neq s$
+ \item $B$ là toán tử dịch chuyển, $BX_t = X_{t-1}$
+ \item $\Phi_P(B^s) = 1 - \Phi_1B^s - \Phi_2B^{2s} - ... - \Phi_PB^{Ps}$
+ \item $\phi_p(B) = 1 - \phi_1B - \phi_2B - ... - \phi_pB$
+ \item $\Theta_Q(B^s) = 1 + \Theta_1B^s + \Theta_2B^{2s} + ... + \Theta_QB^{Qs}$
+ \item $\theta_q(B) = 1 + \theta_1B + \theta_2B^2 + ... + \theta_qB^q$
+\end{itemize}	
+
+	Ta cần ước lượng $p + q + P + Q + 1$ tham số, bao gồm $\Phi_i, i = \overline{1, P}$; $\phi_i, i = \overline{1,p}$; $\Theta_i, i = \overline{1, Q}$; $\theta_i, i = \overline{1, q}$ và $\sigma_z^2$
+ 
+\section{Ước lượng tham số}
+Thực tế việc ước lượng tham số cho các mô hình $ARIMA(p, d, q)$ hay $SARIMA(p,d,q,P,D,Q)_s$ là ước lượng tham số cho mô hình $ARMA(p, q)$ đối với chuỗi $X_t$ sau khi đã lấy sai phân $d$ lần để loại bỏ xu hướng tăng giảm trong chuỗi để được chuỗi thời gian dừng. Sau đây sẽ trình bày về phương pháp ước lượng tham số cho mô hình $ARMA(p, q)$.Mô hình $ARMA(p, q)$ có dạng:
+$$\phi(B)X_t = \theta(B)Z_t$$
+Trong đó:
+$$\phi(B)X_t = 1 - \phi_1B - \phi_2B^2 - ... - \phi_pB^p$$
+$$\theta(B)X_t = 1 + \theta_1B + \theta_2B^2 + ... + \theta_qB^q$$
+$$Z_t \sim WN(0, \sigma_z^2)$$
+
+Các bước ước lượng tham số mô hình:\\
+\begin{itemize}
+	\item Tính trung bình mẫu:
+	$$\overline{x} = \frac{1}{N}\sum_{t=1}^{N}x_t$$
+	\item Tính các thông số: hệ số tự hiệp phương sai mẫu và hệ số tự tương quan mẫu theo công thức:
+ 	$$ {c_k} = \sum_{t = 1}^{N-k}(x_t - \overline{x})(x_{t+k} - \overline{x})$$ 
+	$$ r_k = \frac{c_k}{c_0}$$
+	$$\forall k = \overline{1, max(p, q)}$$
+
+Người ta chứng minh được các ước lượng sau:
+	$$\hat{\theta} = (\hat{\theta_1}, \hat{\theta_2}, ..., \hat{\theta_q}); \ \hat{\phi} = (\hat{\phi_1}, \hat{\phi_2}, ..., \hat{\phi_p}) $$
+là giá trị làm cực đại hóa hàm số:
+	$$l(\phi, \theta) = ln(\frac{1}{n}S(\phi,\theta)) + \frac{1}{n}\sum_{j=1}^{n}ln(r_{j-1})$$
+	$$S(\phi, \theta) = \sum_{j=1}^{N}\frac{(X_j - \hat{X_j})^2}{r_{j-1}}$$
+	
+Việc tìm $(\hat{\theta}, \hat{\phi})$ được thực hiện bằng phương pháp lặp. Khi đó ước lượng của $\sigma_z^2$ là: 
+	$$\hat{\sigma_z^2} = \frac{1}{n}S(\phi,\theta)$$
+\end{itemize}
+\section{Các bước thực hiện thuật toán}
+\subsection{Thống kê $Q^2$}
+Thống kê $Q^2$ của một chuỗi thời gian được dùng để kiểm định xem chuỗi thời gian có tương quan với nhau về thời gian hay không. Thống kê $Q^2$ được tính bằng:
+$$Q(m) = T(T+2)\sum_{l = 1}^{m}\frac{r^2_l}{T-l}$$
+với $r_l$ là hệ số tự tương quan mẫu với độ trễ $l$, $T$ là độ dài chuỗi thời gian. \\
+Thống kê $Q^2$ dùng để kiếm định giả thuyết $H_0$: 
+$$H_0: \ \rho_1 = \rho_2 = ... \rho_1 = 0$$
+nghĩa là chuỗi thời gian không tương quan với mọi độ trễ từ $1$ tới $m$ với đối thuyết $H_1$ là đối thuyết ngược lại.
+Với giả thuyết dừng của chuỗi thời gian thì $Q(m) \sim \chi^2(m)$.\\
+Vậy với mức ý nghĩa $\alpha$, nếu $Q(m) > \chi^2_\alpha(m)$ thì ta bác bỏ giả thuyết $H_0$, tức là chuỗi có tương quan với nhau. Ngược lại ta phải chấp nhận $H_0$. 
+\subsection{Các bước của thuật toán}
+\begin{itemize}
+	\item Vẽ biểu đồ chuỗi thời gian, nếu có xu hướng tăng (giảm) trong chuỗi thời gian thì sử dụng sai phân để biến đổi chuỗi thời gian thành chuỗi dừng.
+	\item Sử dụng thống kê $Q^2$ để kiểm định sự tự tương quan trong chuỗi thời gian, nếu có sự tương quan trong chuỗi thì tiếp tục xây dựng mô hình, còn không chuỗi chỉ là các nhiễu không tương quan.
+	\item Vẽ biểu đồ ACF (hệ số tự tương quan), nếu thấy hệ số tương quan cao tại các độ trễ gần 0 -> tìm cấp của MA, hệ số tương quan cao tại các độ trễ cao hơn (theo mùa) -> cấp của SMA
+	\item Vẽ biểu đồ PACF (hệ số tự tương quan riêng), nếu thấy hệ số tương quan cao tại các độ trễ gần 0 -> tìm cấp của AR, hệ số tương quan cao tại các độ trễ cao hơn (theo mùa) -> cấp của SAR
+\end{itemize}
+\section{Đánh giá mô hình}
+\subsection{Chỉ số AIC}
+	Chỉ số AIC được tính bằng công thức:
+	$$AIC = log(MSE) + \frac{N + 2*p}{N}$$
+	trong đó $MSE = \frac{1}{N} \sum_{t = 1}^{N} (\hat{X_t} - X_t)^2$ là sai số trung bình bình phương của mẫu, p là số tham số của mô hình. Chỉ số này đánh giá dựa trên tiêu chí về sai số của mô hình, tuy nhiên ưu tiên chọn những mô hình có số tham số thấp (tránh việc overfit dữ liệu) bằng cách thêm phần đánh giá $\frac{N + 2*p}{N}$ vào chỉ số. Thông thường ta sẽ xây dựng nhiều mô hình, sau đó chọn mô hình có chỉ số AIC thấp nhất
+\subsection{Kiểm định về nhiễu}
+	Các nhiễu $Z_t \sim WN(0, \sigma_z^2)$, tức là các $Z_t$ có phân phối chuẩn đồng thời không tương quan tại các thời điểm khác nhau. Có thể sử dụng thống kê $Q^2$ để kiểm định sự không tương quan của nhiễu.\\
+	Việc kiểm tra xem $Z_t$ tuân theo phân phối chuẩn hay không có thể sử dụng biểu đồ $Q-Q \ plot$. Biểu đồ $Q-Q \ plot$ vẽ các điểm với tung độ là phân vị của bộ dữ liệu, hoành độ là phân vị tương ứng của phân phối chuẩn. Nếu hầu hết các điểm được vẽ nằm trên đường thẳng thì ta có thể coi như bộ dữ liệu tuân theo phân phối chuẩn.
+	\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.7]{qq}
+	\caption{Q-Q plot}
+	\end{figure}
+
+\section{Dự đoán}
+	Mô hình chuỗi thời gian SARIMA hay ARIMA đều có thể viết lại được dưới dạng:
+	$$X_t = Z_t + \psi_1Z_{t-1} + ... + \psi_kZ_{t-k} + ... = \sum_{j=0}^{\infty}\psi_jZ_{t-j} \ (1) $$
+	với $\sum_{j=0}^{\infty}|\psi_j| < \infty$\\
+	Giả sử cỡ mẫu quan sát được là $n$, các sai số $\hat{Z_t}, \ t = \overline{1, n}$ đã có. Khi muốn dự đoán giá trị $X_{n+m}$, ta sử dụng công thức (1):
+	\begin{itemize}
+		\item $\forall Z_t$ mà $1 \leq t \leq n$, ta sử dụng $\hat{Z_t}$ thay cho $Z_t$ 
+		\item $\forall Z_t$ mà $t > n$, ta coi $Z_t = 0$
+	\end{itemize}
+	Khoảng tin cậy với mức ý nghĩa $\alpha$ cho $X_{n+m}$:\\
+	Với giả thiết nhiễu của mô hình là ồn trắng, khoảng tin cậy với mức ý nghĩa $\alpha$ cho $X_{n+m}$ là:
+	$$ (\hat{X}_{n+m} - z_b\sqrt{{\hat{\sigma}^2}_z\sum_{j=0}^{m-1}\hat{\psi}_j^2}, \ \hat{X}_{n+m} + z_b\sqrt{{\hat{\sigma}^2}_z\sum_{j=0}^{m-1}\hat{\psi}_j^2})$$ 
+ 	
+ 	Trong đó $z_b$ là phân vị $1 - \frac{\alpha}{2}$ của phân phối chuẩn $(0, 1)$ $(\phi(z_b) = 1 - \alpha)$ với $\phi$ là hàm Laplace. $\hat{\sigma}_z^2$ là ước lượng của $\sigma_z^2$ 
+\end{document}
