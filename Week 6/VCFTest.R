@@ -1,8 +1,6 @@
 library(astsa)
 library(forecast)
 data = read.csv("CafeF.HSX.Upto16.11.2018.csv")
-data[data$X.Ticker. == "VCF"]
-data[data$X.Ticker. == "VCF",]
 VCF = data[data$X.Ticker. == "VCF",]
 
 VCF_High = VCF$X.High.
@@ -22,6 +20,7 @@ d = 1
 D = 1
 per = 90
 n = length(ts_VCF_Close)
+
 for (p in 1:7){
   for(q in 1:2){
     for(i in 1:2){
@@ -48,5 +47,6 @@ auto.arima(ts_VCF_Close[1:1316],d=1,D=1,xreg=1:1316,max.p=6, max.q=1, max.P = 1,
            seasonal=TRUE,stepwise=FALSE,approximation = TRUE,ic=("aic"),parallel=TRUE)
 
 model = sarima(ts_VCF_Close, 6,1,1,0,1,1,90)
+model = sarima(ts_VCF_Close, 1,1,1,0,0,0,90)
   
  
